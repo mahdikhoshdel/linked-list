@@ -1,9 +1,9 @@
-from node import SinglyNode
+from node import DoublyNode
 
 
-class LinkedList:
+class DoublyLinkedList:
     def __init__(self, value):
-        new_node = SinglyNode(value)
+        new_node = DoublyNode(value)
         self.head = new_node
         self.tail = new_node
         self.length = 1
@@ -15,12 +15,13 @@ class LinkedList:
             temp = temp.next
 
     def append(self, value):
-        new_node = SinglyNode(value)
+        new_node = DoublyNode(value)
         if self.length == 0:
             self.head = new_node
             self.tail = new_node
         else:
             self.tail.next = new_node
+            new_node.prev = self.tail
             self.tail = new_node
         self.length += 1
         return True
@@ -29,13 +30,9 @@ class LinkedList:
         if self.length == 0:
             return None
         else:
-            temp = self.head
-            pre = self.head
-            while temp.next:
-                pre = temp
-                temp = temp.next
-            pre.next = None
-            self.tail = pre
+            temp = self.tail.value
+            self.tail = self.tail.prev
+            self.tail.next = None
             self.length -= 1
         if self.length == 0:
             self.head = None
@@ -43,7 +40,7 @@ class LinkedList:
         return temp
 
     def prepend(self, value):
-        new_node = SinglyNode(value)
+        new_node = DoublyNode(value)
         if self.length == 0:
             self.head = new_node
             self.tail = new_node
@@ -58,6 +55,7 @@ class LinkedList:
             return None
         temp = self.head
         self.head = self.head.next
+        self.head.prev = None
         temp.next = None
         self.length -= 1
         if self.length == 0:
@@ -88,9 +86,10 @@ class LinkedList:
         if index == self.length:
             self.length += 1
             return self.append(value)
-        new_node = SinglyNode(value)
+        new_node = DoublyNode(value)
         temp = self.get(index - 1)
         new_node.next = temp.next
+        new_node.prev = temp
         temp.next = new_node
         self.length += 1
         return True
@@ -102,18 +101,17 @@ class LinkedList:
             return self.pop_first()
         if index == (self.length - 1):
             return self.pop()
-        prev = self.get(index - 1)
-        temp = prev.next
-        prev.next = temp.next
-        temp.next = None
+        target_index = self.get(index)
+        target_index.prev.next = target_index.next
+        target_index.next = None
         self.length -= 1
-        return temp
+        return target_index
 
     def reverse(self):
         temp = self.head
         self.head = self.tail
         self.tail = temp
-        before = None
+        before = temp.prev
         after = temp.next
         for _ in range(self.length):
             after = temp.next
